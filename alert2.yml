@@ -1,0 +1,85 @@
+groups:
+- name: CassandracustomCreatedbyVikas
+  rules:
+  - alert: CassandraHintsCount
+    expr: changes(cassandra_storage_totalhints_count[1m]) > 3
+    for: 0m
+    labels:
+      severity: critical
+    annotations:
+      summary: Cassandra hints count (instance {{ $labels.instance }})
+      description: "Cassandra hints count has changed on {{ $labels.instance }} some nodes may go down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: CassandraViewwriteLatency
+    expr: cassandra_clientrequest_viewwritelatency_seconds{quantile="0.99"} > 100000
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Cassandra viewwrite latency (instance {{ $labels.instance }})
+      description: "High viewwrite latency on {{ $labels.instance }} cassandra node\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: CassandraBadHacker
+    expr: rate(cassandra_client_authfailure_count[1m]) > 5
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Cassandra bad hacker (instance {{ $labels.instance }})
+      description: "Increase of Cassandra authentication failures\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: CassandraNodeDown
+    expr: sum(up{job='prod_cassandra_monitor'}) < 14
+    for: 0m
+    labels:
+      severity: critical
+    annotations:
+      summary: Cassandra node down (instance {{ $labels.instance }})
+      description: "Cassandra node down.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+
+  - alert: CassandraFlushWriterBlockedTasks
+    expr: cassandra_threadpools_totalblockedtasks_count{threadpools='MemtableFlushWriter'} > 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Cassandra flush writer blocked tasks (instance {{ $labels.instance }})
+      description: "Some Cassandra flush writer tasks are blocked\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: CassandraRepairPendingTasks
+    expr: cassandra_threadpools_pendingtasks{threadpools='AntiEntropyStage'} > 2
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Cassandra repair pending tasks (instance {{ $labels.instance }})
+      description: "Some Cassandra repair tasks are pending\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: CassandraRepairBlockedTasks
+    expr: cassandra_threadpools_totalblockedtasks_count{threadpools='AntiEntropyStage'} > 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: Cassandra repair blocked tasks (instance {{ $labels.instance }})
+      description: "Some Cassandra repair tasks are blocked\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: CassandraConnectionTimeoutsTotal
+    expr: rate(cassandra_connection_totaltimeouts_count[1m]) > 5
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: Cassandra connection timeouts total (instance {{ $labels.instance }})
+      description: "Some connection between nodes are ending in timeout\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+
+  - alert: CassandraCacheHitRateKeyCache
+    expr: cassandra_cache_hits_count{cache='KeyCache'} < .85
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: Cassandra cache hit rate key cache (instance {{ $labels.instance }})
+      description: "Key cache hit rate is below 85%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
